@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-
-	portPtr := flag.String("port", ":8080", "Port")
+	portPtr := flag.String("port", ":8080", "Port to listen on")
+	sslPtr := flag.Bool("ssl", false, "Serve content using SSL")
 	flag.Parse()
 
 	if len(os.Args) < 2 {
@@ -29,6 +29,10 @@ func main() {
 		http.ServeFile(w, r, directory+"index.html")
 	})
 
-	log.Fatal(http.ListenAndServe(*portPtr, nil))
-	fmt.Println("Running at port:", *portPtr)
+	if *sslPtr {
+		log.Fatal(http.ListenAndServeTLS(*portPtr, "cert.pem", "key.pem", nil))
+	} else {
+		log.Fatal(http.ListenAndServe(*portPtr, nil))
+	}
+	fmt.Println("Running on port:", *portPtr)
 }
